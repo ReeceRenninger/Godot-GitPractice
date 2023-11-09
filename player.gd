@@ -1,12 +1,15 @@
 extends Area2D
 
+# working on collisions
+signal hit
+
 @export var speed = 400 # how fast the player will move (pixels/sec)
 var screen_size # size of the game window
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	screen_size = get_viewport_rect().size # find the game window size
-
+	# hide() # hides the player
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 # check for input, move in the given direction, play the appropriate animation
@@ -32,3 +35,25 @@ func _process(delta):
 	# clamping to prevent the sprite from exiting screen
 	position += velocity * delta # delta here refers to the frame length, the amount of time that the previous frame took to complete, keeps movement consistent even in frame changes
 	position = position.clamp(Vector2.ZERO, screen_size) # global variable of screen size used to keep spirte in bounds
+	
+	if velocity.x != 0: # if we are changing the velocity on the x axis with movement
+		$AnimatedSprite2D.animation = "walk"
+		$AnimatedSprite2D.flip_v = false
+		$AnimatedSprite2D.flip_h = velocity.x < 0 # flip the image from animation horizontally if velocity.x < 0 which means moving LEFT
+	elif velocity.y != 0: # if we are changing the velocity on the y axis with movement
+		$AnimatedSprite2D.animation = "up"
+		$AnimatedSprite2D.flip_v = velocity.y > 0 # flip the image from animation vertically if velocity.y > 0 which means moving DOWN
+
+
+func _on_body_entered(body):
+	hide() # player disappears after being hit
+	hit.emit()
+	# must be deferred as we can't change physics properites on a physics callback
+	# Disabling the area's collision shape can cause an error if it happens in the middle of engines collision 
+	# processing. Using set_deferred tells Godot to WAIT to disable the shape until it's safe to do so.
+	$CollisionShape2D.set_deferred("disabled", true)
+	
+func start(pos):
+	position = pos
+	show()
+	$CollisionShape2D.disabled = false
