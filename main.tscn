@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://20r8i1kqia7a"]
+[gd_scene load_steps=6 format=3 uid="uid://20r8i1kqia7a"]
 
 [ext_resource type="PackedScene" uid="uid://bwgqlylx3464t" path="res://mob.tscn" id="1_fygir"]
 [ext_resource type="PackedScene" uid="uid://yd1g2kp11314" path="res://player.tscn" id="2_nkd48"]
+[ext_resource type="PackedScene" uid="uid://pgjhjyw0n4r4" path="res://hud.tscn" id="3_tmo38"]
 
 [sub_resource type="GDScript" id="GDScript_etqw4"]
 script/source = "extends Node
@@ -11,7 +12,8 @@ var score
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	new_game()
+	pass
+	#new_game() #automatically calls a new game for testing
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -22,11 +24,16 @@ func _process(delta):
 func game_over():
 	$ScoreTimer.stop()
 	$MobTimer.stop()
+	$HUD.show_game_over()
 	
 func new_game():
 	score = 0
 	$Player.start($StartPosition.position)
 	$StartTimer.start()
+	$HUD.update_score(score)
+	$HUD.show_message(\"Get Ready\")
+	# made a group in mob node and this calls ALL nodes to delete itself on new game start off screen
+	get_tree().call_group(\"mobs\", \"queue_free\")
 
 
 func _on_mob_timer_timeout():
@@ -57,6 +64,7 @@ func _on_mob_timer_timeout():
 
 func _on_score_timer_timeout():
 	score += 1
+	$HUD.update_score(score)
 
 
 func _on_start_timer_timeout():
@@ -95,7 +103,10 @@ curve = SubResource("Curve2D_6h5y4")
 [node name="MobSpawnLocation" type="PathFollow2D" parent="MobPath"]
 position = Vector2(-2, -1)
 
+[node name="HUD" parent="." instance=ExtResource("3_tmo38")]
+
 [connection signal="hit" from="Player" to="." method="game_over"]
 [connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]
 [connection signal="timeout" from="ScoreTimer" to="." method="_on_score_timer_timeout"]
 [connection signal="timeout" from="StartTimer" to="." method="_on_start_timer_timeout"]
+[connection signal="start_game" from="HUD" to="." method="new_game"]
