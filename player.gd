@@ -9,7 +9,7 @@ var screen_size # size of the game window
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	screen_size = get_viewport_rect().size # find the game window size
-	# hide() # hides the player
+	hide() # hides the player
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 # check for input, move in the given direction, play the appropriate animation

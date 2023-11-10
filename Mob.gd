@@ -14,9 +14,14 @@ func _ready():
 func _process(delta):
 	pass
 
+
 # added signal to Mob node that auto populated this function
-func _on_screen_exited():
+func _on_visible_on_screen_notifier_2d_screen_exited():
 	queue_free()
+
+# this func generated when originally creating the signal BUT it was not connected to the Mob node
+#func _on_screen_exited():
+	#queue_free()
 	
 # we need to have the mobs delete themselves when they leave screen
 # notes from here https://docs.godotengine.org/en/stable/getting_started/first_2d_game/04.creating_the_enemy.html
